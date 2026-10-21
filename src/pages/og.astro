@@ -1,0 +1,75 @@
+---
+// Imagen de vista previa (1200×627) para LinkedIn y redes. No es una página para visitar:
+// se captura a public/og.jpg con Chrome headless (ver README).
+import { cv } from '../data/cv.js';
+
+const dominio = cv.web.replace(/^https?:\/\//, '');
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Vista previa — {cv.nombre}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; margin: 0; }
+      html, body { width: 1200px; height: 627px; overflow: hidden; }
+      body {
+        position: relative;
+        font-family: 'Poppins', sans-serif;
+        color: #f4f6fb;
+        background:
+          radial-gradient(circle at 78% 45%, rgba(91, 140, 255, 0.28), transparent 46%),
+          linear-gradient(135deg, #23336a 0%, #101a3d 100%);
+      }
+      .copy {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 640px;
+        padding: 72px 0 64px 76px;
+        display: flex;
+        flex-direction: column;
+      }
+      .chip {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 18px;
+        border-radius: 999px;
+        background: rgba(244, 246, 251, 0.1);
+        border: 1px solid rgba(244, 246, 251, 0.18);
+        font-size: 17px;
+        font-weight: 500;
+        color: #ccd4ef;
+      }
+      .chip i { width: 10px; height: 10px; border-radius: 50%; background: #2fbf71; box-shadow: 0 0 0 4px rgba(47, 191, 113, 0.25); }
+      h1 { margin-top: 34px; font-size: 104px; line-height: 0.92; letter-spacing: -0.05em; font-weight: 700; }
+      .roles { margin-top: 26px; font-size: 23px; font-weight: 500; color: #ccd4ef; }
+      .roles span { white-space: nowrap; }
+      .roles b { font-weight: 500; color: #8f9bc4; margin: 0 8px; }
+      .web { margin-top: auto; display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 600; }
+      .web span { width: 34px; height: 3px; border-radius: 3px; background: #5b8cff; }
+      canvas { position: absolute; top: 0; right: -30px; width: 640px; height: 627px; }
+    </style>
+  </head>
+  <body>
+    <canvas aria-hidden="true"></canvas>
+    <div class="copy">
+      <p class="chip"><i></i>{cv.disponibilidad}</p>
+      <h1>{cv.nombre.split(' ').map((w) => <span style="display:block">{w}</span>)}</h1>
+      <p class="roles">{cv.roles.map((r, i) => <>{i > 0 && <b>/</b>}<span>{r}</span></>)}</p>
+      <p class="web"><span></span>{dominio}</p>
+    </div>
+    <script>
+      import { createStage } from '../scripts/stage3d.js';
+
+      // Mismas teclas 3D del hero, con la iluminación del modo oscuro para el fondo azul
+      document.fonts.ready.then(() => createStage(document.querySelector('canvas'), { dark: true }));
+    </script>
+  </body>
+</html>

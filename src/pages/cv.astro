@@ -1,0 +1,173 @@
+---
+// CV para RRHH: una sola columna, texto real y títulos estándar para que lo lean bien los ATS.
+// `npm run pdf` lo imprime a dist/CV-Matias-Ganino.pdf (el deploy lo hace solo).
+import { cv } from '../data/cv.js';
+
+const sinProtocolo = (url) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const contacto = [
+  cv.ubicacion,
+  { texto: cv.email, href: `mailto:${cv.email}` },
+  cv.telefono && { texto: cv.telefono, href: `tel:${cv.telefono.replace(/[^\d+]/g, '')}` },
+  { texto: sinProtocolo(cv.linkedin), href: cv.linkedin },
+  { texto: sinProtocolo(cv.web), href: cv.web },
+].filter(Boolean);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV {cv.nombre} — {cv.roles[0]}</title>
+    <meta name="description" content={cv.perfil} />
+    <meta name="author" content={cv.nombre} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Estilos en línea: el PDF se genera abriendo el HTML como archivo, sin servidor -->
+    <style is:inline>
+      :root {
+        --navy: #23336a;
+        --text: #1d2440;
+        --muted: #5b6690;
+        --line: #d9deea;
+        color-scheme: light;
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body {
+        margin: 0;
+        background: #e9ecf3;
+        color: var(--text);
+        font: 400 9.4pt/1.45 'Poppins', Arial, sans-serif;
+      }
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 24px auto;
+        padding: 14mm 15mm;
+        background: #fff;
+        box-shadow: 0 20px 60px -30px rgba(16, 26, 61, 0.4);
+      }
+      h1, h2, h3, p, ul { margin: 0; }
+      a { color: inherit; text-decoration: none; }
+
+      header { padding-bottom: 4mm; border-bottom: 2px solid var(--navy); }
+      h1 { font-size: 24pt; line-height: 1.1; letter-spacing: -0.02em; color: var(--navy); font-weight: 700; }
+      .roles { margin-top: 1mm; font-size: 11pt; font-weight: 500; }
+      .contacto { margin-top: 2mm; display: flex; flex-wrap: wrap; gap: 0 3mm; color: var(--muted); font-size: 8.6pt; }
+      .contacto span:not(:last-child)::after { content: '·'; margin-left: 3mm; }
+
+      section { margin-top: 5mm; }
+      /* Sin letter-spacing: algunos lectores de PDF (ATS) parten las palabras espaciadas */
+      h2 {
+        font-size: 9.6pt;
+        text-transform: uppercase;
+        color: var(--navy);
+        font-weight: 700;
+        padding-bottom: 1mm;
+        margin-bottom: 2.5mm;
+        border-bottom: 1px solid var(--line);
+        break-after: avoid;
+      }
+      .item { break-inside: avoid; }
+      .item + .item { margin-top: 3mm; }
+      h3 { font-size: 10pt; font-weight: 600; }
+      .item p { margin-top: 0.6mm; }
+      /* Lugar y fecha en la línea de abajo del título: así el ATS las lee juntas, en orden */
+      .item .meta { margin-top: 0.3mm; color: var(--muted); font-size: 8.8pt; }
+      .fecha { font-weight: 500; color: var(--navy); }
+      ul { margin-top: 1mm; padding-left: 4.2mm; }
+      li + li { margin-top: 0.4mm; }
+      li::marker { color: var(--navy); }
+      .tec { margin-top: 0.8mm; color: var(--muted); font-size: 8.6pt; }
+      .tec b { color: var(--text); font-weight: 600; }
+      .lista { display: grid; gap: 1mm; }
+      .lista b { font-weight: 600; }
+
+      @page { size: A4; margin: 12mm 0; }
+      @page :first { margin-top: 0; }
+      @media print {
+        body { background: #fff; }
+        .page { width: auto; min-height: 0; margin: 0; padding: 0 15mm; box-shadow: none; }
+        header { padding-top: 14mm; }
+      }
+      @media screen and (max-width: 220mm) {
+        .page { width: auto; margin: 0; padding: 20px 16px; min-height: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>{cv.nombre}</h1>
+        <p class="roles">{cv.roles.join(' | ')}</p>
+        <p class="contacto">
+          {contacto.map((c) => (typeof c === 'string' ? <span>{c}</span> : <span><a href={c.href}>{c.texto}</a></span>))}
+        </p>
+      </header>
+
+      <section>
+        <h2>Perfil profesional</h2>
+        <p>{cv.perfil}</p>
+      </section>
+
+      <!-- Habilidades arriba: es lo primero que busca RRHH (y el ATS) y así queda en la primera página -->
+      <section>
+        <h2>Habilidades técnicas</h2>
+        <div class="lista">
+          {cv.habilidades.map((h) => <p><b>{h.grupo}:</b> {h.items.join(', ')}</p>)}
+        </div>
+      </section>
+
+      <section>
+        <h2>Experiencia laboral</h2>
+        {cv.experiencia.map((e) => (
+          <div class="item">
+            <h3>{e.rol}</h3>
+            <p class="meta">{e.lugar} · <span class="fecha">{e.periodo}</span></p>
+            <ul>{e.items.map((it) => <li>{it}</li>)}</ul>
+          </div>
+        ))}
+      </section>
+
+      <section>
+        <h2>Proyectos destacados</h2>
+        {cv.proyectos.map((p) => (
+          <div class="item">
+            <h3>{p.nombre}</h3>
+            <p class="meta">{p.cliente}{p.freelance && ' · Freelance'}{p.url && <> · <a href={p.url}>{sinProtocolo(p.url)}</a></>}</p>
+            <p>{p.descripcion}</p>
+            {/* Los dos primeros "hice" de cada proyecto: con todos, el CV pasa a 3 páginas */}
+            <ul>{p.hice.slice(0, 2).map((h) => <li>{h}</li>)}</ul>
+            <p class="tec"><b>Tecnologías:</b> {p.stack.join(', ')}</p>
+          </div>
+        ))}
+      </section>
+
+      <section>
+        <h2>Formación académica</h2>
+        {cv.formacion.map((f) => (
+          <div class="item">
+            <h3>{f.titulo}</h3>
+            <p class="meta">{f.lugar} · <span class="fecha">{f.periodo}</span></p>
+          </div>
+        ))}
+      </section>
+
+      {cv.idiomas.length > 0 && (
+        <section>
+          <h2>Idiomas</h2>
+          <div class="lista">
+            {cv.idiomas.map((i) => <p><b>{i.idioma}:</b> {i.nivel}</p>)}
+          </div>
+        </section>
+      )}
+
+      <section>
+        <h2>Competencias</h2>
+        <p>{cv.competencias.join(' · ')}</p>
+      </section>
+    </main>
+  </body>
+</html>

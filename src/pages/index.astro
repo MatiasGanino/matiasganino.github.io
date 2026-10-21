@@ -1,0 +1,291 @@
+---
+import '../styles/global.css';
+import { cv } from '../data/cv.js';
+
+const anioActual = new Date().getFullYear();
+const base = import.meta.env.BASE_URL;
+const sinProtocolo = (url) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+const titulo = `${cv.nombre} | ${cv.roles[0]}`;
+const descripcion = `${cv.roles.join(' · ')}. ${cv.bajada}`;
+// En dev el PDF no existe (lo genera `npm run pdf` sobre dist/): el botón abre /cv para poder probarlo
+const pdfHref = import.meta.env.DEV ? `${base}cv/` : `${base}${cv.pdf}`;
+const pdfDescarga = import.meta.env.DEV ? undefined : cv.pdf;
+const [filaArriba, filaAbajo] = [cv.habilidades.slice(0, 2), cv.habilidades.slice(2)].map((g) => g.flatMap((h) => h.items));
+
+// Datos estructurados (schema.org/Person) para buscadores; todo sale de cv.js
+const trabajoActual = cv.experiencia.find((e) => /actualidad/i.test(e.periodo));
+const universidades = [...new Set(cv.formacion.map((f) => f.lugar).filter((l) => /universidad/i.test(l)))];
+const personaLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: cv.nombre,
+  jobTitle: cv.roles,
+  description: cv.bajada,
+  url: cv.web,
+  email: `mailto:${cv.email}`,
+  ...(cv.telefono && { telephone: cv.telefono }),
+  address: { '@type': 'PostalAddress', addressLocality: cv.ubicacion.split(',')[0].trim(), addressCountry: 'AR' },
+  sameAs: [cv.linkedin],
+  ...(trabajoActual && { worksFor: { '@type': 'Organization', name: trabajoActual.lugar } }),
+  alumniOf: universidades.map((name) => ({ '@type': 'CollegeOrUniversity', name })),
+  knowsAbout: cv.habilidades.flatMap((h) => h.items),
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <meta name="author" content={cv.nombre} />
+    <link rel="canonical" href={cv.web} />
+    <!-- Vista previa al compartir el link (LinkedIn, WhatsApp, etc.) -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={cv.web} />
+    <!-- og.jpg se captura de /og (src/pages/og.astro), ver README. JPEG para que pese poco: WhatsApp no muestra imágenes pesadas -->
+    <meta property="og:image" content={`${cv.web}/og.jpg`} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="2400" />
+    <meta property="og:image:height" content="1254" />
+    <meta property="og:image:alt" content={`${cv.nombre} — ${cv.roles.join(' / ')}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={`${cv.web}/og.jpg`} />
+    <meta name="theme-color" content="#f7f8fb" />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(personaLd)} />
+    <!-- Se aplica el tema antes de pintar para que no parpadee -->
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        // La ola de la intro se ve una vez por sesión (ver intro() en main.js)
+        try { if (sessionStorage.getItem('intro')) root.classList.add('intro-vista'); } catch (e) {}
+        // Red de seguridad: si main.js no llega a liberar la intro (error o script bloqueado), a los 8 s se muestra el sitio igual
+        window.__sinIntro = setTimeout(function () { root.classList.add('sin-intro'); }, 8000);
+        var saved = null;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        var theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        root.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0a1029' : '#f7f8fb';
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="is-loading">
+    <!-- Intro: ola que se dibuja + iniciales -->
+    <div class="loader" aria-hidden="true">
+      <svg class="loader__mark" viewBox="0 0 220 140">
+        <path class="loader__wave" d="M12 78 C 42 18, 88 18, 104 58 S 152 108, 172 50 S 204 26, 210 42" />
+        <text x="110" y="132" text-anchor="middle" class="loader__txt">{cv.iniciales}</text>
+      </svg>
+    </div>
+
+    <header class="nav">
+      <a href="#inicio" class="nav__logo">{cv.iniciales}<span>.</span></a>
+      <nav class="nav__links">
+        <a href="#perfil">Perfil</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#stack">Stack</a>
+        <a href="#formacion">Formación</a>
+      </nav>
+      <div class="nav__right">
+        <button class="theme-btn js-theme" type="button" aria-label="Tema oscuro">
+          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z" /></svg>
+        </button>
+        <a href="#contacto" class="btn btn--navy btn--sm">Contacto</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero__copy">
+          <p class="chip js-hero-in"><span class="chip__dot"></span>{cv.disponibilidad} · {cv.ubicacion}</p>
+          <h1 class="hero__title">
+            {cv.nombre.split(' ').map((w, i) => (<>{i > 0 && ' '}<span class="line"><span class="line__in">{w}</span></span></>))}
+          </h1>
+          <!-- La barra viaja pegada al rol anterior: si los roles se parten, ninguna línea empieza con "/" -->
+          <p class="hero__roles js-hero-in">
+            {cv.roles.map((r, i) => (<>{i > 0 && ' '}<span>{r}{i < cv.roles.length - 1 && <>{' '}<i aria-hidden="true">/</i></>}</span></>))}
+          </p>
+          <p class="hero__lead js-hero-in">{cv.bajada}</p>
+          <div class="hero__cta js-hero-in">
+            <a href={pdfHref} class="btn btn--navy" download={pdfDescarga}>Descargar CV</a>
+            <a href="#proyectos" class="btn btn--outline">Ver proyectos</a>
+          </div>
+        </div>
+        <div class="hero__stage">
+          <canvas class="stage3d" aria-hidden="true"></canvas>
+        </div>
+        <div class="hero__scroll js-hero-in"><span></span>Scroll</div>
+      </section>
+
+      <!-- Perfil: el texto se "pinta" palabra por palabra con el scroll -->
+      <section class="perfil" id="perfil">
+        <div class="panel panel--navy">
+          <h2 class="eyebrow eyebrow--light">Perfil</h2>
+          <p class="scrub-text">{cv.perfil}</p>
+          <div class="stats">
+            {cv.stats.map((s) => (
+              <div class="stat">
+                <strong><span class="js-count" data-to={s.valor}>{s.valor}</span>{s.sufijo}</strong>
+                <span>{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Proyectos: tocás un proyecto y cambia la tarjeta grande (pasan solos mientras la sección está a la vista) -->
+      <section class="proj wrap" id="proyectos">
+        <p class="eyebrow">Proyectos</p>
+        <h2 class="h2 reveal">Lo que construí.</h2>
+        <p class="proj__lead muted reveal">Tocá un proyecto y mirá lo que hice.</p>
+        <div class="proj__chips" role="tablist" aria-label="Proyectos">
+          {cv.proyectos.map((p, i) => (
+            <button
+              class={`proj__chip proj__chip--${p.color} ${i === 0 ? 'is-on' : ''}`}
+              role="tab"
+              id={`proyecto-tab-${i}`}
+              aria-controls={`proyecto-${i}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              data-i={i}
+            >
+              {p.dispositivo === 'movil' ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3" /><path d="M11 18h2" /></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3" /><path d="M2 9h20" /></svg>
+              )}
+              {p.nombre}
+              <span class="proj__chip-bar" aria-hidden="true"></span>
+            </button>
+          ))}
+        </div>
+        <div class="proj__vitrina">
+          {cv.proyectos.map((p, i) => (
+            <article
+              class={`proj__card proj__card--${p.color} ${i === 0 ? 'is-on' : ''}`}
+              role="tabpanel"
+              id={`proyecto-${i}`}
+              aria-labelledby={`proyecto-tab-${i}`}
+              tabindex="0"
+            >
+              <div class="proj__info">
+                <p class="proj__count">{String(i + 1).padStart(2, '0')} / {String(cv.proyectos.length).padStart(2, '0')}</p>
+                <div class="proj__tags">
+                  {p.freelance && <span class="tag tag--free">Freelance</span>}
+                  <span class={`tag ${{ 'Desde cero': 'tag--new', 'Migración': 'tag--mig' }[p.tipo] ?? ''}`}>{p.tipo}</span>
+                  <span class="tag tag--ghost">{p.dispositivo === 'movil' ? 'App móvil' : 'Web'}</span>
+                </div>
+                <h3 class="proj__title">{p.nombre}</h3>
+                <p class="proj__client">
+                  {p.cliente}
+                  {p.url && <> · <a class="proj__link" href={p.url} target="_blank" rel="noopener">{sinProtocolo(p.url)} ↗</a></>}
+                </p>
+                <p class="proj__desc">{p.descripcion}</p>
+                <ul class="proj__did">{p.hice.map((h) => <li>{h}</li>)}</ul>
+                <div class="proj__stack">{p.stack.map((t) => <span>{t}</span>)}</div>
+              </div>
+              <div class="proj__visual" aria-hidden="true">
+                <span class="proj__blob"></span>
+                {p.dispositivo === 'movil' ? (
+                  <div class="device device--phone">
+                    <div class="device__notch"></div>
+                    <div class="ui"><b></b><i></i><i></i><span></span><span></span><span></span><i></i></div>
+                  </div>
+                ) : (
+                  <div class="device device--browser">
+                    <div class="device__bar"><em></em><em></em><em></em></div>
+                    <div class="ui ui--web"><b></b><i></i><i></i><div class="ui__grid"><span></span><span></span><span></span></div><i></i></div>
+                  </div>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="stack" id="stack">
+        <div class="wrap">
+          <p class="eyebrow">Stack</p>
+          <h2 class="h2 reveal">Con qué construyo.</h2>
+        </div>
+        <div class="marquee" data-dir="-1">
+          <div class="marquee__inner">
+            {[0, 1].map((copia) => filaArriba.map((t) => <span class="pill pill--navy" aria-hidden={copia ? 'true' : undefined}>{t}</span>))}
+          </div>
+        </div>
+        <div class="marquee" data-dir="1">
+          <div class="marquee__inner">
+            {[0, 1].map((copia) => filaAbajo.map((t) => <span class="pill" aria-hidden={copia ? 'true' : undefined}>{t}</span>))}
+          </div>
+        </div>
+      </section>
+
+      <section class="edu wrap" id="formacion">
+        <p class="eyebrow">Formación</p>
+        <h2 class="h2 reveal">Lo que estudié.</h2>
+        <div class="timeline">
+          <span class="timeline__line"><span class="timeline__fill"></span></span>
+          {cv.formacion.map((f) => (
+            <div class="timeline__item">
+              <span class="timeline__dot"></span>
+              <p class="timeline__period">{f.periodo}</p>
+              <h3>{f.titulo}</h3>
+              <p class="muted">{f.lugar}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="skills wrap">
+        <h2 class="eyebrow">Especialidades</h2>
+        <div class="skills__grid">
+          {cv.especialidades.map((c, i) => (
+            <div class="card skill js-tilt">
+              <span class="skill__n">0{i + 1}</span>
+              <h3>{c.titulo}</h3>
+              <p class="muted">{c.texto}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="contact" id="contacto">
+        <div class="panel panel--navy contact__panel">
+          <p class="eyebrow eyebrow--light">Contacto</p>
+          <h2 class="contact__title">
+            <span class="line"><span class="line__in">¿Armamos algo</span></span>{' '}
+            <span class="line"><span class="line__in">juntos?</span></span>
+          </h2>
+          <p class="contact__lead">{cv.disponibilidad}. Escribime por mail o por LinkedIn.</p>
+          <a href={`mailto:${cv.email}`} class="btn btn--light btn--xl js-magnetic"><span>{cv.email}</span></a>
+          <div class="contact__links">
+            <button type="button" class="contact__copy js-copy" data-copy={cv.email} aria-live="polite">Copiar mail</button>
+            <a href={cv.linkedin} target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a href={pdfHref} download={pdfDescarga}>CV en PDF ↓</a>
+            {cv.telefono && <a href={`tel:${cv.telefono.replace(/[^\d+]/g, '')}`}>{cv.telefono}</a>}
+            <span>{cv.ubicacion}</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer wrap">
+      <span>© {anioActual} {cv.nombre} · Sitio hecho con Astro, GSAP y Three.js</span>
+      <a href="#inicio">Volver arriba ↑</a>
+    </footer>
+
+    <script>
+      import '../scripts/main.js';
+    </script>
+  </body>
+</html>
