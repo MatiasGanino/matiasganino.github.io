@@ -136,8 +136,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .btn--light { --bg: var(--ink); --fg: var(--navy-b); --bd: var(--ink); }
 .btn--light:hover { --bg: #fff; }
 .btn--sm { height: 40px; padding: 0 20px; font-size: 14px; }
-.btn--xl { height: auto; padding: 22px 40px; font-size: clamp(16px, 2.2vw, 26px); font-weight: 600; }
-.btn--xl span { display: inline-block; }
+.btn--lg { height: 58px; padding: 0 32px; font-size: clamp(15px, 1.4vw, 18px); font-weight: 600; }
+.btn--lg span { display: inline-block; }
 
 /* ---------- Loader ---------- */
 .loader {
@@ -519,22 +519,28 @@ ul { margin: 0; padding: 0; list-style: none; }
 @media (max-width: 560px) { .skills__grid { grid-template-columns: 1fr; } }
 
 /* ---------- Contacto ---------- */
-.contact__panel { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.contact__panel {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: clamp(40px, 6vw, 84px); /* menos alto que los otros paneles: es un cierre, no una portada */
+}
 .contact__panel .eyebrow { justify-content: center; }
 .contact__title {
-  font-size: clamp(44px, 9vw, 140px);
-  line-height: 0.95;
-  letter-spacing: -0.05em;
+  font-size: clamp(34px, 5.4vw, 72px); /* mismo tamaño que los .h2 del resto del sitio */
+  line-height: 1.02;
+  letter-spacing: -0.04em;
   font-weight: 700;
-  margin-bottom: 20px; /* antes 48px: ahora la bajada ocupa ese espacio */
+  margin-bottom: 16px;
 }
 .contact__title .line { padding-bottom: 0.14em; margin-bottom: -0.06em; }
-.contact__lead { margin-bottom: 40px; color: var(--ink-2); font-size: clamp(16px, 1.6vw, 19px); }
+.contact__lead { margin-bottom: 32px; color: var(--ink-2); font-size: clamp(16px, 1.6vw, 19px); }
 /* "Copiar mail": para quien no tiene un programa de correo configurado (el mailto: no hace nada) */
 .contact__copy { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
 .contact__copy:hover { color: var(--ink); }
 html:not(.js) .js-copy { display: none; }
-.contact__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px; margin-top: 36px; color: var(--ink-2); }
+.contact__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px; margin-top: 28px; color: var(--ink-2); }
 .contact__links a:hover { color: var(--ink); }
 
 .footer {
