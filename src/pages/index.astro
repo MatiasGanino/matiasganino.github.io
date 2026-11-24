@@ -143,6 +143,19 @@ const personaLd = {
         </div>
       </section>
 
+      <section class="skills wrap">
+        <h2 class="eyebrow">Especialidades</h2>
+        <div class="skills__grid">
+          {cv.especialidades.map((c, i) => (
+            <div class="card skill js-tilt">
+              <span class="skill__n">0{i + 1}</span>
+              <h3>{c.titulo}</h3>
+              <p class="muted">{c.texto}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <!-- Proyectos: tocás un proyecto y cambia la tarjeta grande (pasan solos mientras la sección está a la vista) -->
       <section class="proj wrap" id="proyectos">
         <p class="eyebrow">Proyectos</p>
@@ -244,19 +257,9 @@ const personaLd = {
             </div>
           ))}
         </div>
-      </section>
-
-      <section class="skills wrap">
-        <h2 class="eyebrow">Especialidades</h2>
-        <div class="skills__grid">
-          {cv.especialidades.map((c, i) => (
-            <div class="card skill js-tilt">
-              <span class="skill__n">0{i + 1}</span>
-              <h3>{c.titulo}</h3>
-              <p class="muted">{c.texto}</p>
-            </div>
-          ))}
-        </div>
+        {cv.idiomas.length > 0 && (
+          <p class="edu__idiomas"><b>Idiomas</b>{cv.idiomas.map((i) => <span>{i.idioma} ({i.nivel})</span>)}</p>
+        )}
       </section>
 
       <section class="contact" id="contacto">
