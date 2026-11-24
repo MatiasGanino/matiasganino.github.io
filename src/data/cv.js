@@ -177,7 +177,7 @@ export const cv = {
     { titulo: 'Full stack', texto: 'Del modelo de datos al frontend y el deploy, en web y en móvil.' },
     { titulo: 'Bases de datos', texto: 'Optimización de consultas y análisis de rendimiento en PostgreSQL y MySQL.' },
     { titulo: 'Calidad (QA)', texto: 'Pruebas funcionales y de regresión antes de cada versión.' },
-    { titulo: 'Modernización', texto: 'Migración de sistemas legados en JSF / PrimeFaces a Spring Boot y Angular.' },
+    { titulo: 'Modernización', texto: 'Migración de sistemas legados a tecnologías actuales, sin perder datos ni funcionalidad.' },
   ],
 
   competencias: [
