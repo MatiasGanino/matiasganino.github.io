@@ -19,7 +19,7 @@ export const cv = {
 
   stats: [
     { valor: 4, sufijo: '', label: 'años como desarrollador' },
-    { valor: 7, sufijo: '', label: 'sistemas en producción' },
+    { valor: 6, sufijo: '', label: 'sistemas en producción' },
     { valor: 2, sufijo: '', label: 'apps móviles publicadas' },
   ],
 
@@ -167,11 +167,11 @@ export const cv = {
     { grupo: 'Lenguajes', items: ['Java', 'Go', 'TypeScript', 'JavaScript', 'SQL', 'HTML', 'CSS'] },
     { grupo: 'Frameworks', items: ['Spring Boot', 'Angular', 'React', 'React Native', 'Expo', 'Astro', 'JHipster', 'JSF / PrimeFaces', 'Apache Wicket'] },
     { grupo: 'Bases de datos', items: ['PostgreSQL', 'MySQL', 'Redis'] },
-    { grupo: 'Herramientas y métodos', items: ['Git', 'GitHub', 'Vercel', 'JIRA', 'Metodologías ágiles', 'QA Testing', 'Photoshop', 'Illustrator'] },
+    { grupo: 'Herramientas y métodos', items: ['Git', 'GitHub', 'Vercel', 'JIRA', 'Metodologías ágiles', 'QA Testing'] },
   ],
 
   // Ejemplo: [{ idioma: 'Inglés', nivel: 'Intermedio (lectura técnica)' }]. Vacío = no se muestra.
-  idiomas: [],
+  idiomas: [{ idioma: 'Inglés', nivel: 'Intermedio' }],
 
   especialidades: [
     { titulo: 'Full stack', texto: 'Del modelo de datos al frontend y el deploy, en web y en móvil.' },

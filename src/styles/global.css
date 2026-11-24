@@ -309,11 +309,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* ---------- Perfil ---------- */
 .perfil { padding: 40px 0 0; }
 .scrub-text {
-  font-size: clamp(26px, 4.2vw, 56px);
-  line-height: 1.18;
-  letter-spacing: -0.03em;
+  font-size: clamp(22px, 2.8vw, 38px); /* antes llegaba a 56px y el párrafo ocupaba casi dos pantallas */
+  line-height: 1.28;
+  letter-spacing: -0.02em;
   font-weight: 500;
-  max-width: 22ch;
+  max-width: 34ch;
 }
 .scrub-text .w { color: rgba(244, 246, 251, 0.16); transition: none; }
 .stats {
@@ -508,9 +508,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 .timeline__dot.is-on { background: var(--brand); }
 .timeline__period { font-size: 13px; font-weight: 600; color: var(--brand); letter-spacing: 0.06em; text-transform: uppercase; }
 .timeline__item h3 { font-size: clamp(20px, 2.4vw, 30px); letter-spacing: -0.02em; margin: 6px 0 4px; font-weight: 600; }
+.edu__idiomas { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 17px; color: var(--muted); }
+.edu__idiomas b { color: var(--text); font-weight: 600; }
 
 /* ---------- Competencias ---------- */
-.skills { padding-bottom: clamp(80px, 12vw, 160px); }
+.skills { padding-top: clamp(80px, 12vw, 160px); } /* va después del Perfil; el aire de abajo lo pone .proj */
 .skills__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .skill { padding: 30px 26px 34px; transform-style: preserve-3d; will-change: transform; }
 .skill__n { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 44px; }
